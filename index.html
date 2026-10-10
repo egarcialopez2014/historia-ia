@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>De ver a actuar · Una historia animada de la IA</title>
+<meta name="description" content="Doce años de inteligencia artificial en seis etapas: de reconocer una imagen a actuar por su cuenta.">
+<meta name="theme-color" content="#101114">
+<style>
+/* ---------- Tokens ---------- */
+:root {
+  --bg: #101114;
+  --bg-2: #17191d;
+  --line: #2c2f36;
+  --text: #f3efe6;
+  --muted: #b3afa5;
+  --dim: #6f6c66;
+  --accent: #e8ad4f;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Type scale: never below ~20px on desktop */
+  --fs-small: clamp(16px, 0.9vw + 0.5vh, 22px);
+  --fs-body: clamp(18px, 1.15vw + 0.7vh, 30px);
+  --fs-h2: clamp(30px, 2.4vw + 1.4vh, 64px);
+  --fs-num: clamp(44px, 4vw + 2.5vh, 112px);
+  --fs-year: clamp(76px, 10vw + 4vh, 240px);
+  --gutter: clamp(20px, 5vw, 96px);
+  --axis-h: 0px;
+  color-scheme: dark;
+}
+@media (min-width: 900px) and (min-height: 560px) {
+  :root { --axis-h: 76px; }
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (min-width: 900px) and (min-height: 560px) {
+  html { scroll-snap-type: y proximity; }
+}
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 400 var(--fs-body)/1.4 var(--sans);
+  overflow-x: hidden;
+}
+a { color: var(--accent); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+
+/* ---------- Slides ---------- */
+.slide {
+  min-height: 100vh; min-height: 100svh;
+  padding: calc(env(safe-area-inset-top, 0px) + clamp(32px, 6vh, 80px)) var(--gutter)
+           calc(env(safe-area-inset-bottom, 0px) + var(--axis-h) + clamp(32px, 6vh, 80px));
+  display: flex; flex-direction: column; justify-content: center;
+  scroll-snap-align: start;
+  position: relative;
+}
+.slide + .slide { border-top: 1px solid var(--line); }
+.wrap { width: 100%; max-width: 1600px; margin: 0 auto; }
+
+.kicker {
+  font: 600 var(--fs-small)/1.2 var(--sans);
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+  margin: 0 0 0.8em;
+}
+h1, h2 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+
+/* ---------- Intro ---------- */
+.intro h1 { font-size: clamp(56px, 8vw + 3vh, 200px); line-height: 0.95; }
+.intro h1 em { font-style: italic; color: var(--accent); }
+.intro .lede { font-size: var(--fs-h2); font-family: var(--serif); color: var(--muted); max-width: 22em; margin: 0.6em 0 0; line-height: 1.2; }
+.intro .lede strong { color: var(--text); font-weight: 600; }
+.hint { margin-top: 2.2em; color: var(--dim); font-size: var(--fs-small); }
+.hint kbd { font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: 0.05em 0.45em; color: var(--muted); }
+
+/* ---------- Era ---------- */
+.era .wrap {
+  display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+  gap: clamp(24px, 5vw, 120px); align-items: center;
+}
+.year {
+  font: 600 var(--fs-year)/0.88 var(--serif); color: var(--accent);
+  letter-spacing: -0.03em; font-variant-numeric: lining-nums;
+  white-space: nowrap;
+}
+.year.range { font-size: calc(var(--fs-year) * 0.56); }
+.ladder { list-style: none; padding: 0; margin: 1.4em 0 0; display: flex; flex-wrap: wrap; gap: 0.2em 0.7em; font-size: var(--fs-small); }
+.ladder li { color: var(--dim); }
+.ladder li.done { color: var(--muted); }
+.ladder li.now { color: var(--accent); font-weight: 700; }
+.ladder li + li::before { content: "→"; margin-right: 0.7em; color: var(--dim); font-weight: 400; }
+.era h2 { font-size: var(--fs-h2); line-height: 1.1; }
+.era h2 span { display: block; font-style: italic; font-weight: 400; color: var(--muted); }
+.explain { margin: 0.8em 0 0; max-width: 34em; color: var(--text); }
+.fact { margin: 1em 0 0; padding: 0.7em 0 0; border-top: 1px solid var(--line); }
+.fact .num { font: 600 var(--fs-num)/1 var(--serif); color: var(--text); font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+.fact .num small { font-size: 0.45em; font-weight: 400; color: var(--muted); margin-left: 0.15em; }
+.fact p { margin: 0.35em 0 0; color: var(--muted); max-width: 36em; }
+.retail { margin: 1.1em 0 0; padding: 0.6em 0 0.6em 1em; border-left: 4px solid var(--accent); }
+.retail .label { display: block; font: 600 var(--fs-small)/1.2 var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.retail q { display: block; margin-top: 0.25em; font: italic 400 calc(var(--fs-h2) * 0.8)/1.15 var(--serif); quotes: none; }
+
+/* ---------- Chart ---------- */
+.chart-slide h2 { font-size: var(--fs-h2); line-height: 1.1; }
+.chart-slide .sub { color: var(--muted); max-width: 46em; margin: 0.5em 0 0; }
+.chart-box { margin-top: clamp(12px, 2.5vh, 32px); width: 100%; }
+.chart-box svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart-src { margin: 0.6em 0 0; font-size: var(--fs-small); color: var(--dim); max-width: 70em; }
+.chart-src a { color: var(--muted); }
+svg .axis { stroke: var(--line); stroke-width: 1; }
+svg .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 6; }
+svg .tick { fill: var(--muted); font-family: var(--sans); }
+svg .pt { fill: var(--accent); }
+svg .pt.weak { fill: var(--bg); stroke: var(--accent); stroke-width: 2.5; }
+svg .plabel { fill: var(--text); font-family: var(--sans); font-weight: 600; }
+svg .trend-all { stroke: var(--muted); stroke-width: 2; stroke-dasharray: 8 8; fill: none; }
+svg .trend-new { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 3 7; stroke-linecap: round; fill: none; opacity: 0.9; }
+svg .tlabel { font-family: var(--sans); font-weight: 600; }
+svg .limit { stroke: var(--dim); stroke-width: 1.5; stroke-dasharray: 2 4; }
+svg .ref { stroke: var(--muted); stroke-width: 1; opacity: 0.5; }
+
+/* ---------- Reveal ---------- */
+.reveal-slide .wrap { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.6fr); gap: clamp(24px, 5vw, 96px); align-items: center; }
+.reveal-slide .statement { font: 600 clamp(44px, 5.4vw + 2vh, 150px)/1.02 var(--serif); letter-spacing: -0.02em; margin: 0; }
+.reveal-slide .stats { font: 700 clamp(24px, 2.2vw + 1vh, 58px)/1.25 var(--sans); color: var(--accent); margin: 0.7em 0 0; }
+.reveal-slide .stats span { white-space: nowrap; }
+@media (max-width: 899px) { .reveal-slide .stats span { white-space: normal; } }
+details { margin-top: 1.6em; max-width: 44em; }
+summary { cursor: pointer; color: var(--muted); font-size: var(--fs-small); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+details blockquote { margin: 0.8em 0 0; padding: 0.2em 0 0.2em 1em; border-left: 2px solid var(--line); color: var(--muted); font-family: var(--serif); font-style: italic; }
+details blockquote p { margin: 0 0 0.6em; }
+.qr { text-align: center; }
+.qr .code { background: #fff; padding: clamp(10px, 1vw, 18px); border-radius: 14px; display: inline-block; width: min(100%, 340px); }
+.qr .code svg { display: block; width: 100%; height: auto; }
+.qr p { margin: 0.6em 0 0; font-size: var(--fs-small); color: var(--muted); word-break: break-all; }
+
+/* ---------- Sources ---------- */
+.sources { font-size: var(--fs-small); }
+.sources h2 { font-size: calc(var(--fs-h2) * 0.8); margin-bottom: 0.8em; }
+.sources ol { margin: 0; padding-left: 1.4em; columns: 2 30em; column-gap: 3em; }
+.sources li { margin: 0 0 0.7em; break-inside: avoid; color: var(--muted); }
+.sources li strong { color: var(--text); font-weight: 600; }
+.sources .note { margin-top: 1.4em; color: var(--dim); max-width: 60em; }
+
+/* ---------- Fixed era axis (desktop) ---------- */
+.axis-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  height: calc(var(--axis-h) + env(safe-area-inset-bottom, 0px));
+  padding: 0 var(--gutter) env(safe-area-inset-bottom, 0px);
+  background: linear-gradient(to top, var(--bg) 70%, rgba(16,17,20,0));
+  display: none;
+}
+@media (min-width: 900px) and (min-height: 560px) { .axis-bar { display: block; } }
+.axis-track { position: relative; height: 100%; max-width: 1600px; margin: 0 auto; }
+.axis-track::before { content: ""; position: absolute; left: 0; right: 0; top: 30px; height: 2px; background: var(--line); }
+.axis-fill { position: absolute; left: 0; top: 30px; height: 2px; background: var(--accent); width: 0; transition: width 0.7s ease; }
+.axis-node {
+  position: absolute; top: 0; transform: translateX(-50%);
+  background: none; border: 0; padding: 0; cursor: pointer; color: var(--dim);
+  font: 600 20px/1 var(--sans); display: flex; flex-direction: column; align-items: center;
+}
+.axis-node i { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--dim); margin-top: 24px; transition: all 0.4s ease; }
+.axis-node b { position: absolute; top: 44px; font-weight: 600; white-space: nowrap; transition: color 0.4s ease; }
+.axis-node.up b { top: auto; bottom: 44px; }
+.axis-node.done i { border-color: var(--accent); background: var(--accent); }
+.axis-node.done { color: var(--muted); }
+.axis-node.now i { width: 20px; height: 20px; margin-top: 21px; border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 6px rgba(232,173,79,0.18); }
+.axis-node.now { color: var(--accent); }
+
+/* ---------- Entrance animation ---------- */
+.js .anim { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0s); }
+.js .in .anim { opacity: 1; transform: none; }
+.js .year.anim { transform: translateX(-36px); }
+.js .in .year.anim { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .anim, .js .year.anim { opacity: 1; transform: none; transition: none; }
+  .axis-fill, .axis-node i, .axis-node b { transition: none; }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 899px) {
+  .era .wrap, .reveal-slide .wrap { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .year { font-size: clamp(64px, 22vw, 140px); }
+  .year.range { font-size: clamp(54px, 17vw, 120px); }
+  .ladder { margin-top: 0.8em; }
+  .slide { min-height: auto; padding-top: 72px; padding-bottom: 72px; }
+  .intro, .reveal-slide { min-height: 100svh; }
+  .qr .code { width: min(70vw, 260px); }
+  .sources ol { columns: 1; }
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+<main id="slides">
+
+  <section class="slide intro" id="inicio" aria-label="Portada">
+    <div class="wrap">
+      <p class="kicker anim" style="--d:.1s">Una historia animada de la IA</p>
+      <h1 class="anim" style="--d:.25s">De <em>ver</em><br>a <em>actuar</em></h1>
+      <p class="lede anim" style="--d:.55s">Entre las dos primeras etapas pasaron <strong>cinco años</strong>. Entre las dos últimas, <strong>uno</strong>.</p>
+      <p class="hint anim" style="--d:.9s">Avanza con <kbd>→</kbd> <kbd>Espacio</kbd> o desplazándote.</p>
+    </div>
+  </section>
+
+  <section class="slide era" id="era-1" data-axis="0" aria-label="2012, Deep learning">
+    <div class="wrap">
+      <div>
+        <div class="year anim" style="--d:.05s">2012</div>
+        <ol class="ladder anim" style="--d:.3s" data-step="1"></ol>
+      </div>
+      <div>
+        <h2 class="anim" style="--d:.2s">Deep learning <span>La máquina aprende a ver</span></h2>
+        <p class="explain anim" style="--d:.45s">Una red neuronal profunda, AlexNet, gana el concurso ImageNet de reconocimiento de imágenes y deja muy atrás a todos los métodos anteriores.</p>
+        <div class="fact anim" style="--d:.7s">
+          <div class="num"><span data-from="26.2" data-to="15.3" data-dec="1">15,3</span><small>%</small></div>
+          <p>de error en ImageNet, frente al 26,2&nbsp;% del mejor rival.</p>
+        </div>
+        <div class="retail anim" style="--d:1.6s"><span class="label">Lo que ya podía hacer</span><q>Reconocer un producto en una foto.</q></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide era" id="era-2" data-axis="1" aria-label="2017, Transformers">
+    <div class="wrap">
+      <div>
+        <div class="year anim" style="--d:.05s">2017</div>
+        <ol class="ladder anim" style="--d:.3s" data-step="2"></ol>
+      </div>
+      <div>
+        <h2 class="anim" style="--d:.2s">Transformers <span>La máquina aprende a leer</span></h2>
+        <p class="explain anim" style="--d:.45s">Un nuevo diseño, el Transformer, lee un texto entero de una vez y aprende qué palabras se relacionan entre sí. Es la base de ChatGPT, Claude o Gemini.</p>
+        <div class="fact anim" style="--d:.7s">
+          <div class="num"><span data-from="0" data-to="8" data-dec="0">8</span><small>autores</small></div>
+          <p>investigadores de Google firman «Attention Is All You Need».</p>
+        </div>
+        <div class="retail anim" style="--d:1.6s"><span class="label">Lo que ya podía hacer</span><q>Traducir una ficha de producto a 20 idiomas.</q></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide era" id="era-3" data-axis="2" aria-label="2020, Escala">
+    <div class="wrap">
+      <div>
+        <div class="year anim" style="--d:.05s">2020</div>
+        <ol class="ladder anim" style="--d:.3s" data-step="3"></ol>
+      </div>
+      <div>
+        <h2 class="anim" style="--d:.2s">Escala <span>Más grande es mejor</span></h2>
+        <p class="explain anim" style="--d:.45s">OpenAI presenta GPT-3 y demuestra que un modelo mucho más grande aprende tareas nuevas con solo ver unos pocos ejemplos.</p>
+        <div class="fact anim" style="--d:.7s">
+          <div class="num"><span data-from="0" data-to="175000" data-dec="0">175.000</span><small>millones</small></div>
+          <p>de parámetros: diez veces más que cualquier modelo de lenguaje anterior de su tipo.</p>
+        </div>
+        <div class="retail anim" style="--d:1.6s"><span class="label">Lo que ya podía hacer</span><q>Redactar la ficha desde cero.</q></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide era" id="era-4" data-axis="3" aria-label="2022, ChatGPT">
+    <div class="wrap">
+      <div>
+        <div class="year anim" style="--d:.05s">2022</div>
+        <ol class="ladder anim" style="--d:.3s" data-step="4"></ol>
+      </div>
+      <div>
+        <h2 class="anim" style="--d:.2s">ChatGPT <span>La IA llega a todos</span></h2>
+        <p class="explain anim" style="--d:.45s">El 30 de noviembre de 2022, OpenAI abre ChatGPT al público. Cualquiera puede conversar con una IA, gratis, desde el navegador.</p>
+        <div class="fact anim" style="--d:.7s">
+          <div class="num"><span data-from="0" data-to="100" data-dec="0">100</span><small>millones</small></div>
+          <p>de usuarios en unos dos meses, según una estimación de UBS. Ninguna aplicación de consumo había crecido tan rápido.</p>
+        </div>
+        <div class="retail anim" style="--d:1.6s"><span class="label">Lo que ya podía hacer</span><q>Responder a un cliente en lenguaje natural.</q></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide era" id="era-5" data-axis="4" aria-label="2024, Razonamiento">
+    <div class="wrap">
+      <div>
+        <div class="year anim" style="--d:.05s">2024</div>
+        <ol class="ladder anim" style="--d:.3s" data-step="5"></ol>
+      </div>
+      <div>
+        <h2 class="anim" style="--d:.2s">Razonamiento <span>La máquina piensa antes de hablar</span></h2>
+        <p class="explain anim" style="--d:.45s">OpenAI o1, en septiembre de 2024, y DeepSeek R1, en enero de 2025, razonan paso a paso antes de responder.</p>
+        <div class="fact anim" style="--d:.7s">
+          <div class="num">~<span data-from="0" data-to="20" data-dec="0">20</span><small>minutos</small></div>
+          <p>de trabajo de una persona: la duración de las tareas que o1-preview ya completaba sola la mitad de las veces, según METR.</p>
+        </div>
+        <div class="retail anim" style="--d:1.6s"><span class="label">Lo que ya podía hacer</span><q>Explicar por qué falló una previsión de demanda y proponer cómo corregirla.</q></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide era" id="era-6" data-axis="5" aria-label="2024 a 2026, Agentes">
+    <div class="wrap">
+      <div>
+        <div class="year range anim" style="--d:.05s">2024–26</div>
+        <ol class="ladder anim" style="--d:.3s" data-step="6"></ol>
+      </div>
+      <div>
+        <h2 class="anim" style="--d:.2s">Agentes y asistentes personales <span>La máquina actúa</span></h2>
+        <p class="explain anim" style="--d:.45s">La IA usa el ordenador como una persona, programa por su cuenta y navega por la web: computer use de Anthropic, Claude Code u Operator de OpenAI.</p>
+        <div class="fact anim" style="--d:.7s">
+          <div class="num">~<span data-from="0" data-to="12" data-dec="0">12</span><small>horas</small></div>
+          <p>de trabajo de una persona: la duración de las tareas que Claude Opus 4.6 completa sola la mitad de las veces, según METR (febrero de 2026).</p>
+        </div>
+        <div class="retail anim" style="--d:1.6s"><span class="label">Lo que ya podía hacer</span><q>Gestionar una devolución de principio a fin, sin intervención humana.</q></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide chart-slide" id="curva" data-axis="5" aria-label="Gráfico: cuánto tiempo puede trabajar una IA sola">
+    <div class="wrap">
+      <p class="kicker anim" style="--d:.05s">La curva</p>
+      <h2 class="anim" style="--d:.15s">¿Cuánto tiempo puede trabajar una IA sola?</h2>
+      <p class="sub anim" style="--d:.3s">Duración de las tareas, medida en tiempo de una persona experta, que los modelos más avanzados completan solos la mitad de las veces.</p>
+      <div class="chart-box anim" style="--d:.45s" id="chart" role="img" aria-label="Gráfico en escala logarítmica. El horizonte de tareas pasa de unos 3 segundos con GPT-2 en 2019 a unas 12 horas con Claude Opus 4.6 en 2026. Se duplica aproximadamente cada 6 meses desde 2019 y cada 4 meses desde 2023."></div>
+      <p class="chart-src anim" style="--d:.6s">Fuente: <a href="https://metr.org/time-horizons/">METR, Task-Completion Time Horizons</a>, versión 1.1, horizonte del 50&nbsp;%. Duplicación según METR: 188 días desde 2019 y 129 desde 2023. *Por encima de 16&nbsp;h la medida no es fiable, así que Mythos Preview queda fuera del ajuste. Un horizonte de X horas no implica poder delegar esas tareas sin supervisión.</p>
+    </div>
+  </section>
+
+  <section class="slide reveal-slide" id="hoy" data-axis="6" aria-label="Hoy: esta página">
+    <div class="wrap">
+      <div>
+        <p class="kicker anim" style="--d:.1s">Hoy · Esta página</p>
+        <p class="statement anim" style="--d:.5s">Esta página la ha construido un agente de IA.</p>
+        <p class="stats anim" style="--d:1.4s" id="stats"></p>
+        <details class="anim" style="--d:2s">
+          <summary>Ver la instrucción original</summary>
+          <blockquote>
+            <p>«Construye una web de una sola página, en español, que cuente la historia de la IA en seis etapas animadas, de ver a actuar, para proyectarla ante un centenar de directivos del retail.</p>
+            <p>Verifica cada dato y cada cifra con búsqueda web antes de usarlo; si no puedes verificarlo, elimínalo. Debe funcionar como diapositivas, leerse a diez metros, funcionar sin conexión y terminar con un código QR.»</p>
+          </blockquote>
+        </details>
+      </div>
+      <div class="qr anim" style="--d:1.8s">
+        <div class="code" aria-label="Código QR que enlaza a ia.egarcialopez.dev"><svg role="img" aria-label="Código QR" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h33v33H0z"/><path stroke="#000000" d="M2 2.5h7m1 0h1m1 0h2m1 0h3m6 0h7M2 3.5h1m5 0h1m5 0h1m2 0h1m1 0h1m2 0h1m1 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m1 0h2m3 0h1m3 0h3m2 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m2 0h4m2 0h3m4 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h2m1 0h1m3 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m1 0h2m1 0h4m1 0h3m3 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M13 9.5h1m1 0h1M2 10.5h1m1 0h1m3 0h2m1 0h3m1 0h1m1 0h2m2 0h1m3 0h1m2 0h1m1 0h1M3 11.5h1m1 0h1m1 0h1m2 0h2m2 0h1m3 0h1m2 0h2m1 0h2m3 0h2M4 12.5h1m1 0h3m3 0h1m2 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1M2 13.5h1m2 0h3m3 0h1m2 0h1m1 0h3m2 0h5m1 0h1M5 14.5h1m2 0h1m1 0h2m3 0h2m5 0h1m1 0h2m4 0h1M4 15.5h4m1 0h8m4 0h2m1 0h2m3 0h2M3 16.5h1m2 0h3m1 0h1m6 0h1m1 0h1m1 0h5m4 0h1M2 17.5h1m2 0h1m4 0h1m4 0h1m4 0h1m1 0h2m1 0h2M2 18.5h3m1 0h1m1 0h1m3 0h1m2 0h1m1 0h2m3 0h1m1 0h2m4 0h1M3 19.5h1m2 0h2m3 0h1m2 0h1m3 0h1m1 0h5m3 0h3M2 20.5h2m1 0h1m2 0h1m4 0h1m1 0h2m1 0h1m2 0h1m1 0h2m1 0h2m2 0h1M5 21.5h2m2 0h1m1 0h2m1 0h1m1 0h3m5 0h1M2 22.5h4m1 0h2m4 0h4m2 0h9m1 0h1M10 23.5h2m2 0h3m2 0h1m2 0h1m3 0h3m1 0h1M2 24.5h7m1 0h3m4 0h1m4 0h1m1 0h1m1 0h1m3 0h1M2 25.5h1m5 0h1m2 0h1m1 0h1m1 0h1m3 0h1m1 0h2m3 0h1m2 0h2M2 26.5h1m1 0h3m1 0h1m3 0h1m1 0h2m1 0h3m1 0h7m1 0h1M2 27.5h1m1 0h3m1 0h1m2 0h1m1 0h3m2 0h1m2 0h1m1 0h1m2 0h4M2 28.5h1m1 0h3m1 0h1m1 0h1m5 0h1m1 0h4m1 0h1m2 0h1m2 0h2M2 29.5h1m5 0h1m3 0h1m1 0h5m1 0h1m1 0h1m2 0h1m1 0h1M2 30.5h7m1 0h1m4 0h1m3 0h2m1 0h1m2 0h1m1 0h1m2 0h1"/></svg></div>
+        <p>ia.egarcialopez.dev</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide sources" id="fuentes" data-axis="6" aria-label="Fuentes">
+    <div class="wrap">
+      <h2>Fuentes</h2>
+      <ol>
+        <li><strong>AlexNet, 2012.</strong> <a href="https://image-net.org/challenges/LSVRC/2012/results.html">Resultados oficiales de ILSVRC 2012</a>. Error top-5 de 15,3&nbsp;% frente a 26,2&nbsp;%. AlexNet usó datos de entrenamiento adicionales; sin ellos obtuvo un 16,4&nbsp;%.</li>
+        <li><strong>Transformer, 2017.</strong> <a href="https://arxiv.org/abs/1706.03762">Vaswani et al., «Attention Is All You Need»</a>, arXiv 1706.03762.</li>
+        <li><strong>GPT-3, 2020.</strong> <a href="https://papers.nips.cc/paper/2020/hash/1457c0d6bfcb4967418bfb8ac142f64a-Abstract.html">Brown et al., «Language Models are Few-Shot Learners»</a>, NeurIPS 2020.</li>
+        <li><strong>ChatGPT, 30 de noviembre de 2022.</strong> <a href="https://en.wikipedia.org/wiki/ChatGPT">Wikipedia: ChatGPT</a>.</li>
+        <li><strong>100 millones de usuarios.</strong> <a href="https://finance.yahoo.com/news/chatgpt-sets-record-fastest-growing-190911828.html">Reuters, 1 de febrero de 2023</a>, sobre un informe de UBS basado en datos de Similarweb. Es una estimación, no una cifra oficial de OpenAI.</li>
+        <li><strong>OpenAI o1, 12 de septiembre de 2024.</strong> <a href="https://openai.com/index/learning-to-reason-with-llms/">OpenAI, «Learning to reason with LLMs»</a>.</li>
+        <li><strong>DeepSeek R1, 20 de enero de 2025.</strong> <a href="https://en.wikipedia.org/wiki/2025_in_artificial_intelligence">Wikipedia: 2025 en inteligencia artificial</a>.</li>
+        <li><strong>Computer use, 22 de octubre de 2024.</strong> <a href="https://www.anthropic.com/news/3-5-models-and-computer-use">Anthropic</a>.</li>
+        <li><strong>Claude Code, 24 de febrero de 2025.</strong> <a href="https://www.anthropic.com/news/claude-3-7-sonnet">Anthropic</a>.</li>
+        <li><strong>Operator, 23 de enero de 2025.</strong> <a href="https://en.wikipedia.org/wiki/OpenAI_Operator">Wikipedia: OpenAI Operator</a>.</li>
+        <li><strong>Horizontes temporales.</strong> <a href="https://metr.org/time-horizons/">METR, Task-Completion Time Horizons</a>, con sus <a href="https://metr.org/assets/benchmark_results_1_1.yaml">datos publicados</a> y el <a href="https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/">informe original de marzo de 2025</a>.</li>
+      </ol>
+      <p class="note">Los ejemplos de retail son ilustrativos y genéricos. Datos verificados en octubre de 2026.</p>
+    </div>
+  </section>
+
+</main>
+
+<nav class="axis-bar" aria-label="Línea del tiempo">
+  <div class="axis-track" id="axis">
+    <div class="axis-fill" id="axis-fill"></div>
+  </div>
+</nav>
+
+<script>
+// ---- Set these before the talk ----
+const MINUTOS = null; // e.g. 25  (real minutes the agent took)
+const PROMPTS = null; // e.g. 3   (instructions given to the agent)
+// -----------------------------------
+
+(function () {
+  'use strict';
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nf = (dec) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+  // Reveal stats line
+  const stats = document.getElementById('stats');
+  const minTxt = MINUTOS != null ? `${MINUTOS} minutos` : 'Unos minutos';
+  const prTxt = PROMPTS != null ? `${PROMPTS} ${PROMPTS === 1 ? 'instrucción' : 'instrucciones'}` : 'unas pocas instrucciones';
+  stats.innerHTML = `<span>${minTxt}</span> · <span>${prTxt}</span> · <span>0 líneas de código escritas a mano.</span>`;
+
+  // Capability ladder
+  const VERBS = ['ver', 'traducir', 'redactar', 'responder', 'razonar', 'actuar'];
+  document.querySelectorAll('.ladder').forEach((ol) => {
+    const step = +ol.dataset.step;
+    ol.setAttribute('aria-label', 'Escalera de capacidades');
+    VERBS.forEach((v, i) => {
+      const li = document.createElement('li');
+      li.textContent = v;
+      if (i + 1 < step) li.className = 'done';
+      if (i + 1 === step) { li.className = 'now'; li.setAttribute('aria-current', 'step'); }
+      ol.appendChild(li);
+    });
+  });
+
+  // Count-up numbers
+  function countUp(el) {
+    const from = +el.dataset.from, to = +el.dataset.to, dec = +el.dataset.dec, f = nf(dec);
+    if (reduced) { el.textContent = f.format(to); return; }
+    const dur = 1400, delay = 800;
+    let start = null;
+    el.textContent = f.format(from);
+    const tick = (t) => {
+      if (start === null) start = t + delay;
+      const p = Math.min(1, Math.max(0, (t - start) / dur));
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = f.format(from + (to - from) * e);
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // ---- Slides, visibility and navigation ----
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const seen = new WeakSet();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting && !seen.has(en.target)) {
+        seen.add(en.target);
+        en.target.classList.add('in');
+        en.target.querySelectorAll('[data-to]').forEach(countUp);
+        if (en.target.id === 'curva') chart.play();
+      }
+    });
+  }, { threshold: 0.35 });
+  slides.forEach((s) => io.observe(s));
+
+  let cur = 0, keyNavAt = 0;
+  function nearest() {
+    const mid = window.innerHeight * 0.4;
+    let best = 0, bestD = Infinity;
+    slides.forEach((s, i) => {
+      const r = s.getBoundingClientRect();
+      const d = r.top <= mid && r.bottom > mid ? 0 : Math.abs(r.top - mid);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    return best;
+  }
+  function go(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    keyNavAt = Date.now();
+    slides[cur].scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+    updateAxis();
+  }
+  let scrollT;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollT);
+    scrollT = setTimeout(() => {
+      if (Date.now() - keyNavAt > 900) cur = nearest();
+      updateAxis();
+    }, 120);
+  }, { passive: true });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (['input', 'textarea', 'select'].includes(tag)) return;
+    if ((tag === 'summary' || tag === 'button' || tag === 'a') && (e.key === ' ' || e.key === 'Enter')) return;
+    const next = ['ArrowDown', 'ArrowRight', 'PageDown', ' '].includes(e.key) && !(e.key === ' ' && e.shiftKey);
+    const prev = ['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key) || (e.key === ' ' && e.shiftKey);
+    if (next || prev) {
+      e.preventDefault();
+      // Long slides (mobile, sources): let arrows scroll within the slide first
+      const r = slides[cur].getBoundingClientRect();
+      const vh = window.innerHeight;
+      if (next && r.bottom > vh + 40 && r.height > vh * 1.15) { window.scrollBy({ top: vh * 0.8, behavior: reduced ? 'auto' : 'smooth' }); return; }
+      go(cur + (next ? 1 : -1));
+    } else if (e.key === 'Home') { e.preventDefault(); go(0); }
+    else if (e.key === 'End') { e.preventDefault(); go(slides.length - 1); }
+  });
+
+  // ---- Bottom era axis: positions are true to calendar time, so eras visibly bunch up ----
+  const now = new Date();
+  const nowYear = now.getFullYear() + now.getMonth() / 12;
+  const NODES = [
+    { t: 2012.75, label: '2012', id: 'era-1' },
+    { t: 2017.45, label: '2017', id: 'era-2' },
+    { t: 2020.4, label: '2020', id: 'era-3' },
+    { t: 2022.91, label: '2022', id: 'era-4' },
+    { t: 2024.7, label: '2024', id: 'era-5' },
+    { t: 2025.15, label: '2024–26', id: 'era-6', up: true },
+    { t: Math.max(2026.3, nowYear), label: 'Hoy', id: 'hoy' },
+  ];
+  const t0 = 2012.5, t1 = NODES[NODES.length - 1].t + 0.15;
+  const axis = document.getElementById('axis'), fill = document.getElementById('axis-fill');
+  const pos = (t) => ((t - t0) / (t1 - t0)) * 100;
+  const nodeEls = NODES.map((n) => {
+    const b = document.createElement('button');
+    b.className = 'axis-node' + (n.up ? ' up' : '');
+    b.style.left = pos(n.t) + '%';
+    b.innerHTML = `<i></i><b>${n.label}</b>`;
+    b.setAttribute('aria-label', `Ir a ${n.label}`);
+    b.addEventListener('click', () => go(slides.findIndex((s) => s.id === n.id)));
+    axis.appendChild(b);
+    return b;
+  });
+  function updateAxis() {
+    const a = slides[cur].dataset.axis;
+    const k = a === undefined ? -1 : +a;
+    nodeEls.forEach((el, i) => { el.classList.toggle('done', i < k); el.classList.toggle('now', i === k); });
+    fill.style.width = k < 0 ? '0' : pos(NODES[k].t) + '%';
+  }
+  updateAxis();
+
+  // ---- METR chart (inline SVG, drawn at container pixel size so text stays legible) ----
+  // [label, release date, p50 horizon in minutes, label placement, show on mobile, unreliable] — METR TH 1.1
+  const METR = [
+    ['GPT-2', '2019-02-14', 0.053778, 'ar', 1],
+    ['GPT-3', '2020-05-28', 0.144057, 'ar', 0],
+    ['GPT-3.5', '2022-03-15', 0.599247, 'br', 0],
+    ['GPT-4', '2023-03-14', 3.987428, 'al', 1],
+    ['GPT-4o', '2024-05-13', 6.991195],
+    ['Claude 3.5 Sonnet', '2024-06-20', 11.395377],
+    ['o1-preview', '2024-09-12', 20.326586],
+    ['Claude 3.5 Sonnet (nuevo)', '2024-10-22', 20.522872],
+    ['o1', '2024-12-05', 38.831588],
+    ['Claude 3.7 Sonnet', '2025-02-24', 60.388937, 'al', 0],
+    ['o3', '2025-04-16', 119.732634],
+    ['GPT-5', '2025-08-07', 203.012577],
+    ['Gemini 3 Pro', '2025-11-18', 224.325884],
+    ['Claude Opus 4.5', '2025-11-24', 292.994594],
+    ['GPT-5.2', '2025-12-11', 352.249302],
+    ['Claude Opus 4.6', '2026-02-05', 718.80683, 'l', 1],
+    ['Claude Mythos Preview*', '2026-04-07', 1044.780145, 'al', 0, true],
+  ].map(([name, date, min, place, mob, weak]) => {
+    const d = new Date(date + 'T00:00:00Z');
+    const t = d.getUTCFullYear() + (d - Date.UTC(d.getUTCFullYear(), 0, 1)) / (365.25 * 864e5);
+    return { name, date, min, place: place || '', mob: !!mob, weak: !!weak, t };
+  });
+  const DOUBLING_ALL = 187.778, DOUBLING_2023 = 128.744; // days, METR TH 1.1
+
+  function fmtDur(m) {
+    if (m < 1) return `${Math.round(m * 60)} s`;
+    if (m < 60) return `${Math.round(m)} min`;
+    const h = m / 60;
+    return `${nf(h < 10 ? 1 : 0).format(h)} h`;
+  }
+  function fmtDate(s) {
+    return new Date(s + 'T00:00:00Z').toLocaleDateString('es-ES', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+  }
+  // Fit intercept only, keeping METR's published slope
+  function fitLine(pts, doublingDays) {
+    const k = 365.25 / doublingDays; // log2 units per year
+    const a = pts.reduce((s, p) => s + Math.log2(p.min) - k * p.t, 0) / pts.length;
+    return (t) => Math.pow(2, a + k * t);
+  }
+
+  const chart = (function () {
+    const box = document.getElementById('chart');
+    const NS = 'http://www.w3.org/2000/svg';
+    let played = reduced, timer = [];
+    function el(name, attrs, parent, text) {
+      const e = document.createElementNS(NS, name);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      if (text != null) e.textContent = text;
+      if (parent) parent.appendChild(e);
+      return e;
+    }
+    function render() {
+      const W = Math.max(320, box.clientWidth);
+      const small = W < 640;
+      const fs = small ? 13 : Math.min(24, Math.max(18, W / 60));
+      const H = Math.round(small ? W * 1.05 : Math.min(W * 0.42, window.innerHeight * 0.43));
+      const m = { l: fs * 4.2, r: fs * 1.2, t: fs * 2.2, b: small ? fs * 6.4 : fs * 2.6 };
+      const tMin = 2019, tMax = 2026.45;
+      const yMin = Math.log10(1 / 60), yMax = Math.log10(16 * 60 * 1.45);
+      const x = (t) => m.l + ((t - tMin) / (tMax - tMin)) * (W - m.l - m.r);
+      const y = (min) => H - m.b - ((Math.log10(min) - yMin) / (yMax - yMin)) * (H - m.t - m.b);
+
+      box.textContent = '';
+      const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, 'aria-hidden': 'true' }, box);
+      svg.style.fontSize = fs + 'px';
+
+      // Y grid
+      const YT = [[1 / 60, '1 s'], [1 / 6, '10 s'], [1, '1 min'], [10, '10 min'], [60, '1 h'], [480, '8 h']];
+      YT.forEach(([v, l]) => {
+        el('line', { class: 'grid', x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }, svg);
+        el('text', { class: 'tick', x: m.l - fs * 0.5, y: y(v) + fs * 0.35, 'text-anchor': 'end' }, svg, l);
+      });
+      el('text', { class: 'tick', x: m.l + fs * 0.4, y: y(480) + fs * 1.15, 'font-size': fs * 0.8 }, svg, 'una jornada laboral');
+      el('line', { class: 'limit', x1: m.l, x2: W - m.r, y1: y(960), y2: y(960) }, svg);
+      el('text', { class: 'tick', x: m.l + fs * 0.4, y: y(960) - fs * 0.5, 'font-size': fs * 0.8 }, svg, small ? 'límite fiable: 16 h' : 'límite fiable de la medida: 16 h');
+      // X axis
+      el('line', { class: 'axis', x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b }, svg);
+      for (let yr = 2019; yr <= 2026; yr++) {
+        if (small && yr % 2 === 0 && yr !== 2026) continue;
+        el('text', { class: 'tick', x: x(yr), y: H - m.b + fs * 1.5, 'text-anchor': 'middle' }, svg, small ? `’${String(yr).slice(2)}` : yr);
+      }
+
+      // Trend lines: METR's published slopes, intercept fitted to the points
+      const fitPts = METR.filter((p) => !p.weak);
+      const fAll = fitLine(fitPts, DOUBLING_ALL);
+      const fNew = fitLine(fitPts.filter((p) => p.t >= 2023), DOUBLING_2023);
+      const tEnd = 2026.3;
+      const gTrend = el('g', { class: 'trend' }, svg);
+      const lAll = el('line', { class: 'trend-all', x1: x(2019), y1: y(fAll(2019)), x2: x(tEnd), y2: y(fAll(tEnd)) }, gTrend);
+      const lNew = el('line', { class: 'trend-new', x1: x(2023), y1: y(fNew(2023)), x2: x(tEnd), y2: y(fNew(tEnd)) }, gTrend);
+      // Legend in the empty upper-left area (between 10 min and 1 h)
+      // On phones the legend goes under the x axis instead
+      const lx = small ? m.l - fs * 3 : m.l + fs * 0.6, ly = small ? H - fs * 2.6 : y(60) + fs * 1.7, lw = fs * 2.2, lfs = small ? fs : fs * 0.95;
+      el('line', { class: 'trend-all', x1: lx, x2: lx + lw, y1: ly - lfs * 0.35, y2: ly - lfs * 0.35 }, gTrend);
+      el('text', { class: 'tlabel', x: lx + lw + fs * 0.5, y: ly, fill: 'var(--muted)', 'font-size': lfs }, gTrend, '×2 cada ~6 meses, desde 2019');
+      el('line', { class: 'trend-new', x1: lx, x2: lx + lw, y1: ly + lfs * 1.15, y2: ly + lfs * 1.15 }, gTrend);
+      el('text', { class: 'tlabel', x: lx + lw + fs * 0.5, y: ly + lfs * 1.5, fill: 'var(--accent)', 'font-size': lfs }, gTrend, '×2 cada ~4 meses, desde 2023');
+
+      // Points
+      const r = small ? 4.5 : fs * 0.36;
+      const pts = METR.map((p) => {
+        const g = el('g', { class: 'p' }, svg);
+        el('title', {}, g, `${p.name.replace('*', '')} · ${fmtDate(p.date)} · ${fmtDur(p.min)}${p.weak ? ' (por encima del límite fiable)' : ''}`);
+        const cx = x(p.t), cy = y(p.min);
+        el('circle', { class: 'pt' + (p.weak ? ' weak' : ''), cx, cy, r }, g);
+        if (p.place && (!small || p.mob)) {
+          const gap = r + fs * 0.35;
+          const P = {
+            ar: [cx - r, cy - gap, 'start'],
+            al: [cx + r, cy - gap, 'end'],
+            br: [cx + gap, cy + fs * 1.1, 'start'],
+            l: [cx - gap, cy + fs * 0.33, 'end'],
+          }[p.place];
+          const t = el('text', { class: 'plabel', x: P[0], y: P[1], 'text-anchor': P[2], 'font-size': fs * 0.85 }, g, p.name + ' ');
+          el('tspan', { class: 'tick', 'font-weight': 400 }, t, '· ' + fmtDur(p.min));
+        }
+        return g;
+      });
+
+      // Animation state
+      const showAll = played && !timer.length;
+      [lAll, lNew].forEach((l) => {
+        const len = Math.hypot(l.x2.baseVal.value - l.x1.baseVal.value, l.y2.baseVal.value - l.y1.baseVal.value);
+        l.dataset.len = len;
+      });
+      if (!showAll) {
+        pts.forEach((g) => { g.style.opacity = 0; g.style.transition = 'opacity .45s ease'; });
+        gTrend.style.opacity = 0; gTrend.style.transition = 'opacity 1s ease';
+      }
+      return { pts, gTrend };
+    }
+    let state = render();
+    function play() {
+      if (played) return;
+      played = true;
+      state.pts.forEach((g, i) => timer.push(setTimeout(() => { g.style.opacity = 1; }, 600 + i * 170)));
+      timer.push(setTimeout(() => { state.gTrend.style.opacity = 1; timer = []; }, 600 + state.pts.length * 170 + 200));
+    }
+    let rt;
+    window.addEventListener('resize', () => {
+      clearTimeout(rt);
+      rt = setTimeout(() => { timer.forEach(clearTimeout); timer = []; state = render(); }, 150);
+    });
+    return { play };
+  })();
+})();
+</script>
+</body>
+</html>
